@@ -1,21 +1,21 @@
-FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
+# Use the official .NET SDK image
+FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+
 WORKDIR /app
-EXPOSE 80
 
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
-WORKDIR /src
-
+# Copy the .csproj file and restore dependencies
 COPY ["BlazeTournaments.csproj", "./"]
-RUN dotnet restore "BlazeTournaments.csproj"
+RUN dotnet restore
 
-COPY . .
-WORKDIR "/src/."
-RUN dotnet build "BlazeTournaments.csproj" -c Release -o /app/build
+# Copy the rest of the app
+COPY . ./
 
-FROM build AS publish
-RUN dotnet publish "BlazeTournaments.csproj" -c Release -o /app/publish
+# Build the application
+RUN dotnet publish -c Release -o out
 
-FROM base AS final
+# Use a smaller runtime image
+FROM mcr.microsoft.com/dotnet/aspnet:7.0
 WORKDIR /app
-COPY --from=publish /app/publish .
+COPY --from=build /app/out .
+
 ENTRYPOINT ["dotnet", "BlazeTournaments.dll"]
