@@ -1,19 +1,20 @@
-# Use official .NET 6 SDK image for build
+# Use official .NET SDK image
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 
+# Set working directory inside container
 WORKDIR /app
 
-# Copy the csproj and restore dependencies
+# Copy csproj and restore dependencies
 COPY ["BlazeTournaments.csproj", "./"]
-RUN dotnet restore
+RUN dotnet restore --source https://api.nuget.org/v3/index.json
 
-# Copy the rest of the source code
-COPY . ./
+# Copy the rest of the code
+COPY . .
 
-# Publish the app
+# Build the project
 RUN dotnet publish -c Release -o out
 
-# Build runtime image
+# Runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:6.0
 WORKDIR /app
 COPY --from=build /app/out .
