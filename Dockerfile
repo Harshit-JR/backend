@@ -5,9 +5,6 @@ EXPOSE 80
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
 
-# Add NuGet source
-RUN dotnet nuget add source https://api.nuget.org/v3/index.json -n nuget.org
-
 COPY ["BlazeTournaments.csproj", "./"]
 RUN dotnet restore "BlazeTournaments.csproj"
 
